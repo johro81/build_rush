@@ -6,11 +6,14 @@ spec:
   containers:
   - name: almalinux9
     image: localhost/build:latest
-    workDir: /build
+    workingDir: /src
     command: ['make']
     volumeMounts:
     - name: hostpath-root
-      mountPath: /build
+      mountPath: /src
+      readOnly: True
+    - name: hostpath-dist
+      mountPath: /dist
     securityContext:
       seLinuxOptions:
         level: "s0:c42"
@@ -18,4 +21,7 @@ spec:
   - name: hostpath-root
     hostPath:
       path: .
+  - name: hostpath-dist
+    hostpath:
+      path: ./dist
   restartPolicy: Never

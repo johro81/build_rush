@@ -3,3 +3,5 @@
 .rpmmacros
 /3pp/*.tar.?z
 /rpmbuild/
+/dist/SRPMS/
+/dist/RPMS/

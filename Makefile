@@ -10,3 +10,5 @@ all:
 	cp 3pp/*.tar.?z $(_rpm_build)/SOURCES
 	cp rush.spec $(_rpm_build)/SPECS
 	rpmbuild -ba $(_rpm_build)/SPECS/rush.spec --nodebuginfo
+	cp -rv $(_rpm_build)/SRPMS /dist/
+	cp -rv $(_rpm_build)/RPMS /dist/

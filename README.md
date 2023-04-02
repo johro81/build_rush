@@ -4,10 +4,43 @@ README.md
 
 ### Build RPM ###
 
-Building the rpms should only require a make: 
+First you need to fetch 3PPs in the 3pp directory.
+This is not required if you go for the automatic approach since the tool will
+do it for you.
+
+
+#### Build on the host ####
+
+Building the rpms should only require a make.
 
     $ make
-    ...
+
+
+#### Build in a container ####
+
+Fix SELinux label on hostpath volumes. It doesn't seem like "podman kube" can
+relabel on the fly like "podman create" does.
+
+    $ chcon -t container_file_t -l s0:c42 -R .
+
+Or if you want to build it in a container:
+
+    $ podman kube play --network none --userns keep-id:uid=1000 kube.yaml
+    $ podman attach <container-id>
+
+    If the was any issues:
+    $ podman logs --follow <container-id>
+
+Close down the Pod.
+
+    $ podman kube down kube.yaml
+
+
+#### Semi automatic build ####
+
+This require an external tool from git@github.com/johro81/tool.git
+
+    $ build_rpm .
 
 
 ### Build a new version of the software ###
@@ -40,24 +73,25 @@ Update the dockerfile and create the image with podman or buildah.
 
 Create and test out the container.
 
-    $ podman create -v .:/build:Z --userns keep-id:uid=1000 \
+    $ podman create \
+        -v .:/src:ro,Z \
+        -v ./dist:/dist:Z \
+        --userns keep-id:uid=1000 \
         --name test localhost/test /bin/sleep inf
-
     $ podman start test
-    $ podman exec -it -w /build test /bin/bash
+    $ podman exec -it -w /src test /bin/bash
 
-    [build@78faff19f5e0 /]$ make
+    [build@78faff19f5e0 src]$ make
     ...
-    [build@78faff19f5e0 /]$ exit 
-    $ find rpmbuild/RPMS
-    $ find rpmbuild/SRPMS
+    [build@78faff19f5e0 src]$ exit
+    $ find ./dist
 
 Clean up the container.
 
     $ podman container kill test
     $ podman container rm test
 
-Clean up of unwanted images:
+Clean up of unwanted images.
 
     $ podman image list
     ...
@@ -71,26 +105,9 @@ Clean up of unwanted images:
 
 #### Tag and push container to the registry ####
 
-Tag container and make sure to increase the tag number
+Tag container and make sure to increase the tag number.
 
     $ podman tag localhost/test:latest registry.example.com/rush:2
     $ podman login registry.example.com
     ...
     $ podman push
-
-
-### SELinux ###
-
-SELinux can be problematic at times, these are some fixes that might be
-required for mounting if host volumes to work.
-
-Check first if you really need these:
-
-    $ sudo setsebool -P virt_use_nfs 1
-    $ sudo setsebool -P use_nfs_home_dirs 1
-
-These should be safe to run. Podman will relabel files if you use the Z flag
-with volumes.
-
-    $ chcon -t user_home_t -l s0 -R .
-    $ chcon -t container_file_t -l s0:c42 -R ./container_root

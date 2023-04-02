@@ -4,20 +4,18 @@ README.md
 
 ### Build RPM ###
 
-Building the rpms should only require a few simple commands:
+Building the rpms should only require a make: 
 
-    $ podman build --tag build -f Dockerfile
     $ make
     ...
-    $ ls -l ./dist/
 
 
 ### Build a new version of the software ###
 
 You will have to update the following files:
 
-* container_root/src/3pp/files
-* container_root/src/rush.spec
+* 3pp/files
+* rush.spec
 
 And hopefully this will be enough. You will have to create a new build image
 if the build requirements have change and the build starts to fail.
@@ -42,17 +40,17 @@ Update the dockerfile and create the image with podman or buildah.
 
 Create and test out the container.
 
-    $ podman create \
-        -v ./container_root/src:/src:ro,Z \
-        -v ./container_root/dist:/dist:Z \
-        --userns keep-id:uid=1000 \
+    $ podman create -v .:/build:Z --userns keep-id:uid=1000 \
         --name test localhost/test /bin/sleep inf
 
     $ podman start test
-    $ podman exec -it test /bin/bash
+    $ podman exec -it -w /build test /bin/bash
 
-    [build@78faff19f5e0 /]$ make -f /src/Makefile
+    [build@78faff19f5e0 /]$ make
     ...
+    [build@78faff19f5e0 /]$ exit 
+    $ find rpmbuild/RPMS
+    $ find rpmbuild/SRPMS
 
 Clean up the container.
 

@@ -1,3 +1,5 @@
 *.sw?
-/container_root/dist/*.rpm
-/container_root/src/3pp/*.tar.?z
+.bash_history
+.rpmmacros
+/3pp/*.tar.?z
+/rpmbuild/

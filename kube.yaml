@@ -7,21 +7,15 @@ spec:
   - name: almalinux9
     image: localhost/build:latest
     workDir: /build
-    command: ['make', '-f', '/src/Makefile']
+    command: ['make']
     volumeMounts:
     - name: hostpath-root
-      mountPath: /src
-      readOnly: true
-    - name: hostpath-dist
-      mountPath: /dist
+      mountPath: /build
     securityContext:
       seLinuxOptions:
         level: "s0:c42"
   volumes:
   - name: hostpath-root
     hostPath:
-      path: ./container_root/src
-  - name: hostpath-dist
-    hostPath:
-      path: ./container_root/dist
+      path: .
   restartPolicy: Never

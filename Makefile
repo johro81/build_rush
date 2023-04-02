@@ -1,18 +1,12 @@
+_rpm_build := ${HOME}/rpmbuild
+
 .PHONY: all
-all: clean
-	bin/fetch_3pp.py container_root/src/3pp
-	chcon -t container_file_t -l s0:c42 -R ./container_root
-	podman kube play --network none --userns keep-id:uid=1000 build.yaml
-	podman logs --follow build_rush-almalinux9
-	podman kube down build.yaml 2>/dev/null || /bin/true
-
-
-.PHONY: clean
-clean:
-	podman kube down build.yaml 2>/dev/null || /bin/true
-	rm -f ./container_root/dist/*
-
-
-.PHONY: 3pp_clean
-3pp_clean:
-	rm -f ./conatiner_root/src/3pp/*
+all:
+	mkdir -p $(_rpm_build)
+	for dir in RPMS SOURCES SPECS SRPMS BUILD; do \
+	    mkdir -p $(_rpm_build)/$$dir; \
+	done
+	echo '%_topdir %(echo $$HOME)/rpmbuild' > $$HOME/.rpmmacros
+	cp 3pp/*.tar.?z $(_rpm_build)/SOURCES
+	cp rush.spec $(_rpm_build)/SPECS
+	rpmbuild -ba $(_rpm_build)/SPECS/rush.spec --nodebuginfo

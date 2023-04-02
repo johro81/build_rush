@@ -1,0 +1,8 @@
+---
+
+
+files:
+  - name: rush-2.3.tar.xz
+    url: https://download.gnu.org.ua/pub/release/rush/rush-2.3.tar.xz
+    oid_type: sha256
+    oid: 8cae258247cd2623e856ea5e2c62cd7f09e9e3e043e6fc63bbd1abec3d3fdd93

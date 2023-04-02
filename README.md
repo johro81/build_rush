@@ -38,7 +38,7 @@ Close down the Pod.
 
 #### Semi automatic build ####
 
-This require an external tool from git@github.com/johro81/tool.git
+This require an external tool from git@github.com:johro81/tool.git
 
     $ build_rpm .
 
